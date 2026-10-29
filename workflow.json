@@ -1,0 +1,306 @@
+{
+  "name": "DesafioArConsultoria",
+  "nodes": [
+    {
+      "parameters": {
+        "formId": "obV0Xx"
+      },
+      "type": "n8n-nodes-tallyforms.tallyTrigger",
+      "typeVersion": 2,
+      "position": [
+        -624,
+        -544
+      ],
+      "id": "209f7f4f-cf0f-43e5-b677-bb50ff169543",
+      "name": "Tally Trigger",
+      "webhookId": "407a01a1-5ba3-4b83-aacf-2c29f2eccb3e",
+      "credentials": {
+        "tallyApi": {
+          "id": "d005KtsInpHaXStt",
+          "name": "Tally account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Você é um assistente especializado em transformar textos livres em ações estruturadas e priorizadas.\n\nAnalise o texto fornecido e retorne um JSON válido com a seguinte estrutura:\n\n{\n  \"resumo\": string,\n  \"tipo\": \"tarefa\" | \"ideia\" | \"problema\",\n  \"prioridade\": \"alta\" | \"media\" | \"baixa\",\n  \"contexto\": string,\n  \"passos_sugeridos\": [\n    {\n      \"descricao\": string,\n      \"prioridade\": \"alta\" | \"media\" | \"baixa\"\n    }\n  ],\n  \"tags\": string[]\n}\n\nRegras obrigatórias para passos_sugeridos:\n\n- Gerar EXATAMENTE 5 passos\n- Distribuição obrigatória:\n  - 2 passos com prioridade \"alta\"\n  - 2 passos com prioridade \"media\"\n  - 1 passo com prioridade \"baixa\"\n- Os passos devem estar ORDENADOS nesta ordem:\n  1. alta\n  2. alta\n  3. media\n  4. media\n  5. baixa\n- Cada passo deve ser claro, direto e acionável\n- Não repetir ideias\n- Não criar passos genéricos demais\n\nRegras de classificação:\n\n- tipo:\n  - \"tarefa\": algo que precisa ser feito\n  - \"ideia\": sugestão ou melhoria\n  - \"problema\": algo que precisa ser resolvido\n\n- prioridade (geral):\n  - baseada no impacto do texto como um todo\n\nRegras de estrutura (CRÍTICO):\n\n- Cada item do array deve ser um objeto JSON completo e corretamente fechado\n- Nunca deixar vírgulas soltas\n- Nunca gerar objetos incompletos\n- Garantir JSON 100% válido e parseável\n- Usar apenas aspas duplas (\"\")\n\nRegras gerais:\n\n- Não inventar informações que não estejam no texto\n- Ser objetivo e claro\n- Priorizar ações práticas\n- Tags devem ser palavras curtas e relevantes\n- Se algo não estiver claro, inferir com cautela\n- Não retornar nenhum texto fora do JSON\n\nValidação obrigatória antes de responder:\n\n- O JSON deve conter todos os campos\n- passos_sugeridos deve ter exatamente 5 itens\n- A distribuição de prioridades deve estar correta\n- O JSON deve ser válido e parseável\n\nAnalise o texto a seguir:{{ $json.question_1K52Qb.value }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -416,
+        -544
+      ],
+      "id": "07f0e517-5b00-46a3-b5df-93044c52c790",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "H7YSRLTWehPUuGgv",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendHTML": true,
+        "subject": "Seus pensamentos foram organizados com sucesso 🚀",
+        "htmlContent": "=<div style=\"background-color: #f8fafc; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;\">\n  <div style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);\">\n\n    <div style=\"background-color: #1e293b; padding: 24px 32px;\">\n      <h2 style=\"color: #ffffff; margin: 0; font-size: 20px; font-weight: 600;\">Relatório da Solicitação</h2>\n    </div>\n\n    <div style=\"padding: 32px;\">\n      \n      <table style=\"width: 100%; border-collapse: collapse; font-size: 15px; color: #334155; margin-bottom: 40px;\">\n        <tr>\n          <td style=\"padding: 14px 0; border-bottom: 1px solid #f1f5f9; font-weight: 600; width: 130px; color: #0f172a;\">Resumo</td>\n          <td style=\"padding: 14px 0; border-bottom: 1px solid #f1f5f9;\">{{$json.resumo}}</td>\n        </tr>\n        <tr>\n          <td style=\"padding: 14px 0; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #0f172a;\">Tipo</td>\n          <td style=\"padding: 14px 0; border-bottom: 1px solid #f1f5f9;\">{{$json.tipo}}</td>\n        </tr>\n        <tr>\n          <td style=\"padding: 14px 0; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #0f172a;\">Prioridade</td>\n          <td style=\"padding: 14px 0; border-bottom: 1px solid #f1f5f9;\">\n            {{\n              $json.prioridade === 'alta'\n                ? '<span style=\"color:#b91c1c; background-color:#fee2e2; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; border: 1px solid #fca5a5;\">Alta</span>'\n                : $json.prioridade === 'media'\n                ? '<span style=\"color:#b45309; background-color:#fef3c7; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; border: 1px solid #fcd34d;\">Média</span>'\n                : '<span style=\"color:#15803d; background-color:#dcfce7; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; border: 1px solid #86efac;\">Baixa</span>'\n            }}\n          </td>\n        </tr>\n        <tr>\n          <td style=\"padding: 14px 0; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #0f172a;\">Contexto</td>\n          <td style=\"padding: 14px 0; border-bottom: 1px solid #f1f5f9; line-height: 1.5;\">{{$json.contexto}}</td>\n        </tr>\n        <tr>\n          <td style=\"padding: 14px 0; font-weight: 600; color: #0f172a;\">Tags</td>\n          <td style=\"padding: 14px 0;\">{{$json.tags_texto}}</td>\n        </tr>\n      </table>\n\n      <h3 style=\"color: #0f172a; margin-top: 0; margin-bottom: 20px; font-size: 18px; font-weight: 600;\">Passos Sugeridos</h3>\n\n      <table style=\"width: 100%; border-collapse: collapse; font-size: 14px;\">\n        <thead>\n          <tr style=\"background-color: #f8fafc;\">\n            <th style=\"padding: 14px 16px; text-align: left; font-weight: 600; color: #475569; border-bottom: 2px solid #e2e8f0; width: 120px;\">Prioridade</th>\n            <th style=\"padding: 14px 16px; text-align: left; font-weight: 600; color: #475569; border-bottom: 2px solid #e2e8f0;\">Ação</th>\n          </tr>\n        </thead>\n        <tbody>\n          {{\n            $json.passos.map(p => {\n              let badge = '<span style=\"color:#15803d; background-color:#dcfce7; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; border: 1px solid #86efac;\">Baixa</span>';\n\n              if (p.prioridade === 'alta') {\n                badge = '<span style=\"color:#b91c1c; background-color:#fee2e2; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; border: 1px solid #fca5a5;\">Alta</span>';\n              } else if (p.prioridade === 'media') {\n                badge = '<span style=\"color:#b45309; background-color:#fef3c7; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; border: 1px solid #fcd34d;\">Média</span>';\n              }\n\n              return `\n                <tr>\n                  <td style=\"padding: 16px; border-bottom: 1px solid #f1f5f9; vertical-align: top;\">${badge}</td>\n                  <td style=\"padding: 16px; border-bottom: 1px solid #f1f5f9; color: #334155; line-height: 1.6; vertical-align: top;\">${p.descricao}</td>\n                </tr>\n              `;\n            }).join('')\n          }}\n        </tbody>\n      </table>\n\n    </div>\n\n    <div style=\"background-color: #f8fafc; padding: 20px 32px; border-top: 1px solid #e2e8f0; text-align: center;\">\n      <p style=\"margin: 0; font-size: 13px; color: #64748b; line-height: 1.5;\">\n        Este é um documento processado pelo sistema.<br>\n        Não é necessário responder a esta mensagem.\n      </p>\n    </div>\n\n  </div>\n</div>",
+        "sender": "cauaribeiropsn@gmail.com",
+        "receipients": "={{ $('Tally Trigger').item.json.question_pA9PYP.value }}",
+        "additionalFields": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.sendInBlue",
+      "typeVersion": 1,
+      "position": [
+        592,
+        -528
+      ],
+      "id": "ea99f3f5-e095-4f49-a63f-2c5631aadf93",
+      "name": "Send a transactional email",
+      "credentials": {
+        "sendInBlueApi": {
+          "id": "MyypZ4ToXt5wSJpz",
+          "name": "Brevo account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Pega o texto bruto\nlet raw = $input.first().json.content.parts[0].text;\n\n// contador de retry\nlet retry = $json.retry || 0;\n\n// 2. Validação básica\nif (!raw) {\n  return [{\n    json: {\n      success: false,\n      retry,\n      error: \"Resposta da IA veio vazia\"\n    }\n  }];\n}\n\n// 3. Remove markdown\nraw = raw\n  .replace(/```json/g, \"\")\n  .replace(/```/g, \"\")\n  .trim();\n\n// 4. Extrai apenas o JSON (entre { })\nconst match = raw.match(/\\{[\\s\\S]*\\}/);\n\nif (!match) {\n  return [{\n    json: {\n      success: false,\n      retry,\n      error: \"Não encontrou JSON válido\",\n      raw_output: raw\n    }\n  }];\n}\n\nraw = match[0];\n\n// 5. Corrige problemas comuns\nraw = raw\n  .replace(/,\\s*([}\\]])/g, \"$1\") // vírgula inválida\n  .replace(/'/g, '\"') // aspas simples\n  .replace(/\\n/g, \" \"); // quebra de linha\n\n// 6. Parse\nlet data;\ntry {\n  data = JSON.parse(raw);\n} catch (e) {\n  return [{\n    json: {\n      success: false,\n      retry,\n      error: \"JSON inválido após limpeza\",\n      raw_output: raw\n    }\n  }];\n}\n\n// 7. Segurança\nconst passos = Array.isArray(data.passos_sugeridos) ? data.passos_sugeridos : [];\nconst tags = Array.isArray(data.tags) ? data.tags : [];\n\n// 8. Formatação dos passos\nconst passos_texto = passos\n  .map(p => {\n    if (typeof p === \"string\") return `- ${p}`;\n    return `- [${(p.prioridade || \"media\").toUpperCase()}] ${p.descricao || \"\"}`;\n  })\n  .join(\"\\n\");\n\n// 9. SUCESSO\nreturn [\n  {\n    json: {\n      success: true,\n      retry,\n      resumo: data.resumo || \"\",\n      tipo: data.tipo || \"\",\n      prioridade: data.prioridade || \"\",\n      contexto: data.contexto || \"\",\n      passos,\n      passos_texto,\n      tags,\n      tags_texto: tags.join(\", \")\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        -544
+      ],
+      "id": "9948cc38-ca50-492c-b0fd-bf414f5403c0",
+      "name": "Tratamento de Dados"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0e29a895-5bc8-4a38-bc8a-7830960ca3a3",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        -528
+      ],
+      "id": "08d436ba-261d-4c28-80c7-afe25934d214",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3f98c772-beca-463b-bfd7-dd3fd79735c4",
+              "name": "retry",
+              "value": "={{ ($json.retry || 0) + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -368,
+        -48
+      ],
+      "id": "d7cb2524-5236-4445-b1e5-2cabc8b38729",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3b089a23-c446-40ef-86e1-95481dbe0d6f",
+              "leftValue": "={{ $json.retry || 0 }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -352,
+        -256
+      ],
+      "id": "198eef43-11c1-401b-ab0b-a0f2fe9e06c7",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "sendHTML": true,
+        "subject": "Infelizmente ",
+        "htmlContent": "=<div style=\"background-color: #f8fafc; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;\">\n  <div style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);\">\n\n    <div style=\"background-color: #475569; padding: 24px 32px;\">\n      <h2 style=\"color: #ffffff; margin: 0; font-size: 18px; font-weight: 600;\">Status da Solicitação</h2>\n    </div>\n\n    <div style=\"padding: 32px; color: #334155; line-height: 1.6;\">\n      \n      <p style=\"margin-top: 0; font-size: 16px;\">Olá,</p>\n\n      <p style=\"font-size: 15px;\">\n        Informamos que sua mensagem foi recebida com sucesso pelo nosso sistema. No entanto, devido à natureza específica do conteúdo enviado, não foi possível concluir o processamento automatizado de forma imediata.\n      </p>\n\n      <div style=\"margin: 24px 0; padding: 20px; background-color: #f1f5f9; border-left: 4px solid #94a3b8; border-radius: 4px;\">\n        <p style=\"margin: 0 0 8px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 700;\">\n          {{ $('Tally Trigger').item.json.question_1K52Qb.label }}\n        </p>\n        <p style=\"margin: 0; font-size: 15px; color: #1e293b; font-style: italic;\">\n          {{ $('Tally Trigger').item.json.question_1K52Qb.value }}\n        </p>\n      </div>\n\n      <p style=\"font-size: 15px;\">\n        Para garantir a precisão no atendimento, nossa equipe técnica já foi notificada e realizará uma <strong>análise manual</strong> deste contexto. Você receberá uma atualização assim que a revisão for concluída.\n      </p>\n\n      <div style=\"margin-top: 40px; padding-top: 24px; border-top: 1px solid #f1f5f9;\">\n        <p style=\"margin-bottom: 4px; font-size: 15px; color: #475569;\">Atenciosamente,</p>\n        <p style=\"margin-top: 0; font-size: 16px; font-weight: 700; color: #0f172a;\">Cauã Ribeiro N8N</p>\n      </div>\n\n    </div>\n\n    <div style=\"background-color: #f8fafc; padding: 16px 32px; border-top: 1px solid #e2e8f0; text-align: center;\">\n      \n    </div>\n\n  </div>\n</div>",
+        "sender": "cauaribeiropsn@gmail.com",
+        "receipients": "={{ $('Tally Trigger').item.json.question_pA9PYP.value }}",
+        "additionalFields": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.sendInBlue",
+      "typeVersion": 1,
+      "position": [
+        592,
+        -192
+      ],
+      "id": "f3bda8a8-039f-4f74-ab45-2962b63de8b6",
+      "name": "Send a transactional email1",
+      "credentials": {
+        "sendInBlueApi": {
+          "id": "MyypZ4ToXt5wSJpz",
+          "name": "Brevo account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Tally Trigger": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Tratamento de Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tratamento de Dados": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a transactional email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a transactional email1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "345fd2aa-5ba4-4ed2-8fd2-554c02ce8b14",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0f8508ddd707fcb40954ce25ed1f2de340186213901664c1ed37a388b77527bc"
+  },
+  "id": "hSBJphmreBQKh35z",
+  "tags": []
+}
